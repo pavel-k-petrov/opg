@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      .container {
+        font-family: sans;
+        height: 100vh;
+        display: flex;
+      }
+      .data {
+        display: inline-block;
+        width: 10em;
+        border: 1px;
+        /* border-color: blue; */
+        outline: 1px solid blue;
+        height: 100%;
+      }
+      .participants {
+        width: 100%;
+        border: 1px;
+        /* border-color: blue; */
+        outline: 1px solid blue;
+      }
+      .color-box{
+        width: 1em;
+        height: 1em;
+      }
+      .splits {
+        width: 100%;
+        border: 1px;
+        /* border-color: blue; */
+        outline: 1px solid blue;
+      }      
+      .map-wrapper {
+        flex-grow: 1;
+        height: 100%;
+      }
+      .map {
+        display: inline-block;
+        border: 1px;
+        outline: 1px solid red;
+        /* height: auto; */
+        background-image: url('https://thumb.cloud.mail.ru/thumb/xw1/opg2024/run-2024.jpg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        width: 100%;
+        aspect-ratio: 3508/2480;
+      }
+      .map svg {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"></script>
+  </head>
+  <body>
+    <div style="display: none;" id="participantTemplate">
+        <div class="participant">
+            <input type="checkbox" />
+            <span class="color-box">&nbsp;</span>
+            <span class="name"></span>
+            <a>сплиты</a>
+        </div>
+    </div>
+    <div class="container">
+      <div class="data">
+        <div class="participants" id="participants">
+        </div>
+        <div class="splits" id="splits"></div>
+      </div>
+      <div class="map-wrapper">
+        <div class="map">
+          <svg id="map-svg">
+            
+          </svg>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script lang="javascript">
+    function makeSVG(tag, attrs) {
+        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (var k in attrs)
+            el.setAttribute(k, attrs[k]);
+        return el;
+    }
+
+    var controlCoordinates = {
+        'S': { x: '23.8%', y: '60.6%'},
+        '51': { x: '24%', y: '44.5%'},
+        '52': { x: '23%', y: '24.5%'},
+        '53': { x: '39.8%', y: '22.2%'},
+        '54': { x: '26.8%', y: '6.5%'},
+        '56': { x: '37.0%', y: '2.2%'},
+        '55': { x: '53.6%', y: '7.6%'},
+        '57': { x: '61.0%', y: '27.0%'},
+        '58': { x: '52.0%', y: '35.0%'},
+        '59': { x: '47.4%', y: '44.8%'},
+        '60': { x: '68.0%', y: '44.2%'},
+        '61': { x: '56.8%', y: '57.8%'},
+        '62': { x: '67.8%', y: '62.4%'},
+        '63': { x: '54.4%', y: '82.4%'},
+        '64': { x: '82.0%', y: '83.4%'},
+        '65': { x: '92.0%', y: '92.2%'},
+        '66': { x: '93.6%', y: '65.2%'},
+        '67': { x: '36.6%', y: '38.4%'},
+        'F': { x: '23.8%', y: '60.6%'},
+    }
+
+    var runs = [
+
+    {
+	number: '8862', surname: 'Петров', name: 'Сергей', finish: '15:29:8',
+	splits: [
+		{ control: '31', time:'12:12:47' },
+		{ control: '32', time:'12:18:27' },
+		{ control: '33', time:'12:21:20' },
+		{ control: '34', time:'12:23:53' },
+		{ control: '71', time:'12:28:54' },
+		{ control: '35', time:'12:36:23' },
+		{ control: '36', time:'12:38:15' },
+		{ control: '37', time:'12:42:19' },
+		{ control: '41', time:'12:47:43' },
+		{ control: '42', time:'12:50:37' },
+		{ control: '43', time:'12:54:19' },
+		{ control: '44', time:'13:2:10' },
+		{ control: '45', time:'13:8:35' },
+		{ control: '46', time:'13:13:19' },
+		{ control: '47', time:'13:18:55' },
+		{ control: '74', time:'13:25:24' },
+		{ control: '73', time:'13:30:47' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '53', time:'13:49:51' },
+		{ control: '59', time:'13:57:26' },
+		{ control: '58', time:'14:1:56' },
+		{ control: '61', time:'14:9:0' },
+		{ control: '62', time:'14:14:48' },
+		{ control: '63', time:'14:20:58' },
+		{ control: '64', time:'14:30:27' },
+		{ control: '65', time:'14:35:44' },
+		{ control: '66', time:'14:42:38' },
+		{ control: '60', time:'14:52:45' },
+		{ control: '57', time:'14:58:35' },
+		{ control: '55', time:'15:5:37' },
+		{ control: '56', time:'15:10:20' },
+		{ control: '54', time:'15:14:24' },
+		{ control: '52', time:'15:18:7' },
+		{ control: '51', time:'15:23:1' },
+	],
+},
+{
+	number: '3', surname: 'Старостин', name: 'Александр', finish: '16:31:12',
+	splits: [
+		{ control: '41', time:'12:13:14' },
+		{ control: '42', time:'12:16:54' },
+		{ control: '43', time:'12:22:17' },
+		{ control: '44', time:'12:37:25' },
+		{ control: '45', time:'12:47:14' },
+		{ control: '46', time:'12:54:26' },
+		{ control: '71', time:'12:58:4' },
+		{ control: '47', time:'13:7:44' },
+		{ control: '31', time:'13:17:58' },
+		{ control: '32', time:'13:26:23' },
+		{ control: '33', time:'13:30:42' },
+		{ control: '34', time:'13:34:3' },
+		{ control: '35', time:'13:45:23' },
+		{ control: '36', time:'13:48:8' },
+		{ control: '37', time:'13:54:37' },
+		{ control: '73', time:'14:3:0' },
+		{ control: '75', time:'14:10:6' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '53', time:'14:31:29' },
+		{ control: '58', time:'14:43:5' },
+		{ control: '59', time:'14:48:30' },
+		{ control: '61', time:'15:0:8' },
+		{ control: '62', time:'15:4:36' },
+		{ control: '63', time:'15:10:31' },
+		{ control: '64', time:'15:24:9' },
+		{ control: '65', time:'15:28:43' },
+		{ control: '66', time:'15:35:18' },
+		{ control: '60', time:'15:44:57' },
+		{ control: '57', time:'15:51:12' },
+		{ control: '55', time:'15:58:1' },
+		{ control: '56', time:'16:2:52' },
+		{ control: '54', time:'16:7:10' },
+		{ control: '52', time:'16:11:5' },
+		{ control: '51', time:'16:16:19' },
+	],
+},
+{
+	number: '9646', surname: 'Сорокин', name: 'Иван', finish: '16:15:34',
+	splits: [
+		{ control: '31', time:'12:13:7' },
+		{ control: '32', time:'12:20:18' },
+		{ control: '33', time:'12:24:11' },
+		{ control: '34', time:'12:27:19' },
+		{ control: '71', time:'12:33:7' },
+		{ control: '35', time:'12:42:41' },
+		{ control: '36', time:'12:44:55' },
+		{ control: '37', time:'12:50:16' },
+		{ control: '41', time:'12:55:51' },
+		{ control: '42', time:'12:59:12' },
+		{ control: '43', time:'13:3:59' },
+		{ control: '44', time:'13:13:32' },
+		{ control: '45', time:'13:21:42' },
+		{ control: '46', time:'13:27:46' },
+		{ control: '47', time:'13:34:34' },
+		{ control: '73', time:'13:38:40' },
+		{ control: '74', time:'13:45:32' },
+		{ control: '51', time:'13:55:20' },
+		{ control: '52', time:'14:1:15' },
+		{ control: '54', time:'14:6:5' },
+		{ control: '56', time:'14:11:21' },
+		{ control: '55', time:'14:16:32' },
+		{ control: '53', time:'14:23:39' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '59', time:'14:34:57' },
+		{ control: '58', time:'14:43:19' },
+		{ control: '57', time:'14:50:0' },
+		{ control: '60', time:'14:56:58' },
+		{ control: '61', time:'15:4:34' },
+		{ control: '62', time:'15:9:41' },
+		{ control: '66', time:'15:21:38' },
+		{ control: '65', time:'15:26:59' },
+		{ control: '64', time:'15:32:43' },
+		{ control: '63', time:'16:3:44' },
+	],
+},
+{
+	number: '11', surname: 'Хохлов', name: 'Василий', finish: '15:0:32',
+	splits: [
+		{ control: '31', time:'12:15:5' },
+		{ control: '32', time:'12:21:48' },
+		{ control: '33', time:'12:26:48' },
+		{ control: '34', time:'12:31:31' },
+		{ control: '71', time:'12:35:48' },
+		{ control: '35', time:'12:45:10' },
+		{ control: '36', time:'12:47:14' },
+		{ control: '37', time:'12:52:32' },
+		{ control: '41', time:'12:58:23' },
+		{ control: '42', time:'13:1:47' },
+		{ control: '43', time:'13:6:6' },
+		{ control: '44', time:'13:15:13' },
+		{ control: '45', time:'13:23:49' },
+		{ control: '46', time:'13:29:50' },
+		{ control: '47', time:'13:36:41' },
+		{ control: '73', time:'13:39:29' },
+		{ control: '63', time:'13:57:39' },
+		{ control: '62', time:'14:5:33' },
+		{ control: '60', time:'14:11:6' },
+		{ control: '57', time:'14:21:0' },
+		{ control: '55', time:'14:29:30' },
+		{ control: '56', time:'14:35:51' },
+		{ control: '54', time:'14:41:20' },
+		{ control: '52', time:'14:46:22' },
+		{ control: '51', time:'14:53:8' },
+	],
+},
+{
+	number: '9', surname: 'Дудко', name: 'Алексей', finish: '14:33:27',
+	splits: [
+		{ control: '41', time:'12:16:53' },
+		{ control: '42', time:'12:20:37' },
+		{ control: '36', time:'12:32:39' },
+		{ control: '44', time:'12:45:5' },
+		{ control: '45', time:'13:0:3' },
+		{ control: '46', time:'13:7:12' },
+		{ control: '71', time:'13:9:47' },
+		{ control: '47', time:'13:20:24' },
+		{ control: '73', time:'13:23:15' },
+		{ control: '31', time:'13:33:32' },
+		{ control: '32', time:'13:43:18' },
+		{ control: '33', time:'13:51:3' },
+		{ control: '34', time:'13:56:1' },
+		{ control: '35', time:'14:8:30' },
+		{ control: '36', time:'14:10:48' },
+		{ control: '37', time:'14:17:55' },
+		{ control: '75', time:'14:30:42' },
+	],
+},
+{
+	number: '8', surname: 'Димитров', name: 'Борис', finish: '15:27:36',
+	splits: [
+		{ control: '50', time:'12:11:42' },
+		{ control: '71', time:'12:22:56' },
+		{ control: '44', time:'12:28:51' },
+		{ control: '47', time:'12:38:2' },
+		{ control: '73', time:'12:43:29' },
+		{ control: '51', time:'13:1:37' },
+		{ control: '52', time:'13:8:10' },
+		{ control: '54', time:'13:13:5' },
+		{ control: '56', time:'13:18:5' },
+		{ control: '55', time:'13:24:16' },
+		{ control: '53', time:'13:33:5' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '59', time:'13:45:40' },
+		{ control: '61', time:'13:51:2' },
+		{ control: '58', time:'14:1:31' },
+		{ control: '57', time:'14:8:42' },
+		{ control: '60', time:'14:16:37' },
+		{ control: '62', time:'14:23:46' },
+		{ control: '64', time:'14:33:37' },
+		{ control: '65', time:'14:40:6' },
+		{ control: '66', time:'14:50:53' },
+		{ control: '63', time:'15:14:46' },
+	],
+},
+{
+	number: '6', surname: 'Якимов', name: 'Семён', finish: '15:10:47',
+	splits: [
+		{ control: '41', time:'12:12:51' },
+		{ control: '42', time:'12:15:23' },
+		{ control: '43', time:'12:18:49' },
+		{ control: '44', time:'12:25:24' },
+		{ control: '45', time:'12:31:17' },
+		{ control: '46', time:'12:35:40' },
+		{ control: '71', time:'12:40:29' },
+		{ control: '47', time:'12:45:52' },
+		{ control: '31', time:'12:52:15' },
+		{ control: '32', time:'12:57:26' },
+		{ control: '33', time:'13:0:32' },
+		{ control: '34', time:'13:2:48' },
+		{ control: '35', time:'13:10:21' },
+		{ control: '36', time:'13:12:5' },
+		{ control: '37', time:'13:17:1' },
+		{ control: '75', time:'13:25:56' },
+		{ control: '73', time:'13:29:2' },
+		{ control: '59', time:'13:38:2' },
+		{ control: '61', time:'13:41:51' },
+		{ control: '62', time:'13:46:47' },
+		{ control: '63', time:'13:59:19' },
+		{ control: '64', time:'14:6:42' },
+		{ control: '65', time:'14:10:2' },
+		{ control: '66', time:'14:15:21' },
+		{ control: '60', time:'14:23:32' },
+		{ control: '57', time:'14:28:52' },
+		{ control: '58', time:'14:32:59' },
+		{ control: '55', time:'14:39:37' },
+		{ control: '56', time:'14:43:40' },
+		{ control: '54', time:'14:47:11' },
+		{ control: '52', time:'14:50:17' },
+		{ control: '53', time:'14:56:50' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '51', time:'15:5:27' },
+	],
+},
+{
+	number: '7', surname: 'Малышкин', name: 'Андрей', finish: '15:47:1',
+	splits: [
+		{ control: '31', time:'12:12:53' },
+		{ control: '32', time:'12:18:47' },
+		{ control: '33', time:'12:22:12' },
+		{ control: '34', time:'12:24:50' },
+		{ control: '35', time:'12:32:58' },
+		{ control: '36', time:'12:34:53' },
+		{ control: '37', time:'12:38:53' },
+		{ control: '41', time:'12:44:19' },
+		{ control: '42', time:'12:47:21' },
+		{ control: '43', time:'12:50:59' },
+		{ control: '44', time:'12:58:19' },
+		{ control: '45', time:'13:5:3' },
+		{ control: '46', time:'13:10:39' },
+		{ control: '71', time:'13:13:11' },
+		{ control: '47', time:'13:19:37' },
+		{ control: '73', time:'13:24:44' },
+		{ control: '75', time:'13:30:0' },
+		{ control: '51', time:'13:50:31' },
+		{ control: '52', time:'13:56:28' },
+		{ control: '54', time:'14:2:18' },
+		{ control: '56', time:'14:6:59' },
+		{ control: '55', time:'14:13:33' },
+		{ control: '57', time:'14:20:40' },
+		{ control: '58', time:'14:25:43' },
+		{ control: '59', time:'14:29:49' },
+		{ control: '61', time:'14:35:5' },
+		{ control: '60', time:'14:40:27' },
+		{ control: '62', time:'14:44:42' },
+		{ control: '64', time:'14:51:53' },
+		{ control: '66', time:'14:59:32' },
+		{ control: '65', time:'15:4:12' },
+		{ control: '63', time:'15:15:26' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '53', time:'15:37:32' },
+	],
+},
+{
+	number: '10', surname: 'Поромов', name: 'Артём', finish: '15:49:57',
+	splits: [
+		{ control: '47', time:'12:10:32' },
+		{ control: '41', time:'12:13:53' },
+		{ control: '42', time:'12:17:0' },
+		{ control: '43', time:'12:21:6' },
+		{ control: '44', time:'12:29:5' },
+		{ control: '45', time:'12:38:6' },
+		{ control: '46', time:'12:43:18' },
+		{ control: '47', time:'12:49:17' },
+		{ control: '31', time:'12:58:1' },
+		{ control: '32', time:'13:4:7' },
+		{ control: '33', time:'13:7:50' },
+		{ control: '34', time:'13:10:38' },
+		{ control: '71', time:'13:19:2' },
+		{ control: '35', time:'13:27:27' },
+		{ control: '36', time:'13:29:42' },
+		{ control: '37', time:'13:35:36' },
+		{ control: '73', time:'13:40:8' },
+		{ control: '75', time:'13:45:36' },
+		{ control: '51', time:'13:55:41' },
+		{ control: '52', time:'14:0:37' },
+		{ control: '54', time:'14:5:50' },
+		{ control: '56', time:'14:10:37' },
+		{ control: '55', time:'14:15:55' },
+		{ control: '53', time:'14:23:9' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '59', time:'14:34:29' },
+		{ control: '58', time:'14:39:28' },
+		{ control: '57', time:'14:45:15' },
+		{ control: '60', time:'14:51:26' },
+		{ control: '61', time:'14:57:40' },
+		{ control: '62', time:'15:3:11' },
+		{ control: '64', time:'15:15:39' },
+		{ control: '66', time:'15:21:6' },
+		{ control: '65', time:'15:26:37' },
+		{ control: '63', time:'15:39:15' },
+	],
+},
+{
+	number: '2', surname: 'Петухова', name: 'Екатерина', finish: '16:1:29',
+	splits: [
+		{ control: '31', time:'12:12:58' },
+		{ control: '32', time:'12:20:9' },
+		{ control: '33', time:'12:24:18' },
+		{ control: '34', time:'12:27:9' },
+		{ control: '35', time:'12:36:47' },
+		{ control: '36', time:'12:39:34' },
+		{ control: '37', time:'12:45:6' },
+		{ control: '41', time:'12:51:31' },
+		{ control: '42', time:'12:55:5' },
+		{ control: '43', time:'13:0:5' },
+		{ control: '44', time:'13:10:2' },
+		{ control: '45', time:'13:18:21' },
+		{ control: '71', time:'13:28:5' },
+		{ control: '47', time:'13:36:6' },
+		{ control: '73', time:'13:44:30' },
+		{ control: '51', time:'13:53:57' },
+		{ control: '52', time:'13:59:36' },
+		{ control: '54', time:'14:4:8' },
+		{ control: '56', time:'14:8:54' },
+		{ control: '55', time:'14:14:41' },
+		{ control: '53', time:'14:22:10' },
+		{ control: '67', time:'13:27:12' },
+		{ control: '59', time:'14:33:9' },
+		{ control: '58', time:'14:38:1' },
+		{ control: '57', time:'14:45:3' },
+		{ control: '60', time:'14:51:20' },
+		{ control: '61', time:'14:57:7' },
+		{ control: '62', time:'15:2:2' },
+		{ control: '66', time:'15:11:33' },
+		{ control: '65', time:'15:17:39' },
+		{ control: '64', time:'15:23:38' },
+		{ control: '63', time:'15:33:55' },
+		{ control: '75', time:'15:56:21' },
+	],
+},
+    ];
+
+    var visibleRuns = [];
+
+    var availableColors = [
+        "magenta",
+        "cyan",
+        "orange",
+        "gold",
+        "lime",
+        "orangered",
+        "red",
+    ];
+
+    $(document).ready(function() {
+        // let prevPoint = undefined;
+
+        // Object.keys(controlCoordinates).forEach(key => {
+        //     var curPoint = controlCoordinates[key];
+        //     if (prevPoint) {
+        //         var line = makeSVG(
+        //             'line', 
+        //             { x1: prevPoint.x, y1: prevPoint.y, x2: curPoint.x, y2: curPoint.y, stroke: 'magenta', 'stroke-width': '2px'})
+        //         document.getElementById('map-svg').appendChild(line);
+        //     }
+        //     prevPoint = curPoint;
+        // });
+        initParticipants();
+        // drawRun(runs[1], 'magenta');
+    });
+
+    function initParticipants(){
+        let container = document.getElementById('participants');
+        let template = $("#participantTemplate>div");
+        runs.forEach(run => {
+            let element = template.clone();
+            let name = run.name + ' ' + run.surname;
+            $("input", element)
+                .prop('title', name)
+                .on("change", run, function(eventContext) {
+                    toggleRunVisibility(eventContext.data, eventContext.currentTarget);
+                });
+            $(".name", element).text(name);
+            $("a", element).click(run, ({data}) => {
+                $('#splits').empty();
+                $('#splits').append('<div class="name">'+data.name + ' ' + data.surname+'</div>');
+                data.splits.forEach(split => {
+                    var html = "<div class='split'><span class='number'>"
+                        + split.control
+                        +"</span><span class='time'>"
+                        + split.time
+                        +"</span></div>";
+                    $('#splits').append(html);
+                });
+                //let svg = document.getElementById('map-svg');
+                // $('#map-svg').empty();
+                // drawRun(run, 'magenta')
+            });
+            element.appendTo(container);
+        });
+    }
+
+    function toggleRunVisibility(run, input) {
+
+        if (input.checked && !visibleRuns.find(vr => vr.run.number == run.number)) {
+            let color = availableColors[0];
+            availableColors.splice(0, 1);
+            visibleRun = {
+                run: run,
+                color: color,
+            };
+            visibleRuns.push(visibleRun);
+            drawRun(run, color);
+            $('.color-box', $(input).parent()).css('background-color', color);
+        }
+
+        if (!input.checked) {
+            let visibleRun = visibleRuns.find(vr => vr.run.number == run.number);
+            if (visibleRun) {
+                let lines = $('[stroke=' + visibleRun.color + ']', $('#map-svg'));
+                lines.remove();
+                availableColors = [visibleRun.color].concat(availableColors);
+                visibleRuns = visibleRuns.filter(vr => vr.run.number != run.number);
+                $('.color-box', $(input).parent()).css('background-color', '');
+            }
+        }
+    }
+
+    function drawRun(run, color) {
+        let svg = document.getElementById('map-svg');
+        let prevPoint = controlCoordinates['S'];
+        run.splits.forEach(split => {
+            if (controlCoordinates.hasOwnProperty(split.control)) {
+                var curPoint = controlCoordinates[split.control];
+                var line = makeSVG(
+                    'line', 
+                    { x1: prevPoint.x, y1: prevPoint.y, x2: curPoint.x, y2: curPoint.y, stroke: color, 'stroke-width': '2px'});
+                svg.appendChild(line);
+                prevPoint = curPoint;
+            }
+        });
+    }
+  </script>
+</html>
